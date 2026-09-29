@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Keystone Account Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: two-panel card — brand panel left, form right; stacks to one column on phones */
+:root{
+  --bg:#E9EDF2; --surface:#FFFFFF; --panel:#14304A; --panel-fg:#E6EEF6;
+  --fg:#142130; --muted:#5B6878; --line:#D3DAE3; --field:#F5F7FA;
+  --accent:#D9822B; --accent-fg:#1B1206; --focus:#2F6DB5;
+  --ok:#2E8B57; --warn:#C98A12; --bad:#C0392B;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E151D; --surface:#16202B; --panel:#0B2236; --panel-fg:#D6E2EE;
+  --fg:#E4EAF1; --muted:#93A1B2; --line:#2A3746; --field:#1D2935;
+  --accent:#E9994A; --accent-fg:#1B1206; --focus:#6EA4E6;
+  --ok:#4CB67C; --warn:#E0A73A; --bad:#E5645A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E151D; --surface:#16202B; --panel:#0B2236; --panel-fg:#D6E2EE;
+  --fg:#E4EAF1; --muted:#93A1B2; --line:#2A3746; --field:#1D2935;
+  --accent:#E9994A; --accent-fg:#1B1206; --focus:#6EA4E6;
+  --ok:#4CB67C; --warn:#E0A73A; --bad:#E5645A; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);padding-inline:16px;padding-block:40px;display:grid;place-items:center}
+.shell{width:100%;max-width:900px;display:grid;grid-template-columns:1fr 1.15fr;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 12px 40px -18px rgba(10,25,40,.35)}
+@media (max-width:720px){.shell{grid-template-columns:1fr}.brand{padding:28px 24px!important}.brand .facts{display:none}}
+
+.brand{background:var(--panel);color:var(--panel-fg);padding:40px 36px;display:flex;flex-direction:column;gap:28px;position:relative}
+.logo{display:flex;align-items:center;gap:10px;font:700 20px/1 var(--display);letter-spacing:-.01em}
+.logo svg{flex:none}
+.brand h1{font:700 clamp(26px,3.4vw,34px)/1.12 var(--display);margin:0;text-wrap:balance;letter-spacing:-.015em}
+.brand p{margin:0;opacity:.82;max-width:34ch}
+.facts{list-style:none;margin:auto 0 0;padding:0;display:grid;gap:12px;font-size:13.5px}
+.facts li{display:flex;gap:10px;align-items:flex-start;opacity:.9}
+.facts .k{font:500 11px/1.9 var(--mono);color:var(--accent);letter-spacing:.06em;flex:none;width:44px}
+
+.main{padding:36px;display:flex;flex-direction:column;gap:22px;min-width:0}
+@media (max-width:720px){.main{padding:26px 22px}}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--field);border:1px solid var(--line);border-radius:10px;padding:4px;gap:4px}
+.tab{appearance:none;border:0;background:transparent;color:var(--muted);font:600 14px var(--body);padding:9px 10px;border-radius:7px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tab:focus-visible,.btn:focus-visible,.link:focus-visible,.eye:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+h2{font:700 22px/1.2 var(--display);margin:0;letter-spacing:-.01em}
+.sub{margin:4px 0 0;color:var(--muted);font-size:14px}
+form{display:grid;gap:16px}
+.field{display:grid;gap:6px}
+label{font-weight:600;font-size:13.5px}
+.inwrap{position:relative}
+input[type=text],input[type=email],input[type=password]{width:100%;font:15px var(--body);color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:11px 12px;transition:border-color .15s}
+input:focus{outline:none;border-color:var(--focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--focus) 22%,transparent)}
+input[aria-invalid="true"]{border-color:var(--bad)}
+.inwrap input{padding-right:64px}
+.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--muted);font:600 12px var(--body);padding:6px 8px;border-radius:6px;cursor:pointer}
+.err{color:var(--bad);font-size:12.5px;min-height:0}
+.err:empty{display:none}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:13.5px}
+.check{display:flex;align-items:center;gap:8px;font-weight:500;cursor:pointer}
+.check input{width:16px;height:16px;accent-color:var(--accent)}
+.link{background:none;border:0;padding:0;color:var(--focus);font:600 13.5px var(--body);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.btn{appearance:none;border:0;background:var(--accent);color:var(--accent-fg);font:600 15px var(--body);padding:12px 16px;border-radius:8px;cursor:pointer;transition:filter .15s}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.meter{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:2px}
+.meter span{height:4px;border-radius:2px;background:var(--line)}
+.hint{font-size:12.5px;color:var(--muted)}
+.banner{border:1px solid var(--line);border-left:3px solid var(--ok);background:var(--field);padding:10px 12px;border-radius:8px;font-size:13.5px}
+.banner.bad{border-left-color:var(--bad)}
+.note{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;margin:0}
+
+.dash{display:grid;gap:18px}
+.avatar{width:52px;height:52px;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;font:700 20px var(--display)}
+.who{display:flex;gap:14px;align-items:center}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:10px 18px;font-size:14px;border:1px solid var(--line);border-radius:10px;padding:16px}
+dt{color:var(--muted)}
+dd{margin:0;font-variant-numeric:tabular-nums;min-width:0;overflow-wrap:anywhere}
+.mono{font-family:var(--mono);font-size:12.5px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.danger{border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.danger summary{cursor:pointer;font-weight:600;color:var(--bad)}
+.danger form{margin-top:12px;gap:10px}
+.danger-btn{background:var(--bad);color:#fff}
+.btn[disabled]{opacity:.6;cursor:progress}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="brand">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><path d="M8 3h12l5 22H3z" fill="var(--accent)"/><path d="M11 3h6l-1 8h-4z" fill="var(--panel)"/></svg>
+      Keystone
+    </div>
+    <div style="display:grid;gap:12px">
+      <h1 id="brandTitle">Welcome back.</h1>
+      <p id="brandText">Sign in to reach your account, or create one in under a minute.</p>
+    </div>
+    <ul class="facts">
+      <li><span class="k">BCRYPT</span><span>Passwords are hashed with bcrypt on the server. Nobody can read them.</span></li>
+      <li><span class="k">COOKIE</span><span>Your session lives in a secure, HTTP-only cookie for 30 days.</span></li>
+      <li><span class="k">MIN</span><span>Passwords need 8+ characters with a letter and a number.</span></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div id="authView">
+      <div class="tabs" role="tablist" aria-label="Account">
+        <button class="tab" role="tab" id="tabLogin" aria-selected="true" aria-controls="loginForm">Sign in</button>
+        <button class="tab" role="tab" id="tabSignup" aria-selected="false" aria-controls="signupForm">Create account</button>
+      </div>
+      <div style="height:22px"></div>
+      <div id="flash" hidden></div>
+
+      <form id="loginForm" novalidate>
+        <div><h2>Sign in</h2><p class="sub">Use the email you signed up with.</p></div>
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" autocomplete="email" placeholder="you@example.com">
+        </div>
+        <div class="field">
+          <label for="loginPass">Password</label>
+          <div class="inwrap">
+            <input type="password" id="loginPass" autocomplete="current-password" placeholder="Your password">
+            <button type="button" class="eye" data-for="loginPass">Show</button>
+          </div>
+          <div class="err" id="loginErr"></div>
+        </div>
+        <div class="row">
+          <span class="hint">You'll stay signed in for 30 days.</span>
+          <button type="button" class="link" id="toSignup">Need an account?</button>
+        </div>
+        <button class="btn" type="submit">Sign in</button>
+      </form>
+
+      <form id="signupForm" novalidate hidden>
+        <div><h2>Create account</h2><p class="sub">It takes about a minute.</p></div>
+        <div class="field">
+          <label for="suName">Full name</label>
+          <input type="text" id="suName" autocomplete="name" placeholder="Ashik Sarwar">
+          <div class="err" id="suNameErr"></div>
+        </div>
+        <div class="field">
+          <label for="suEmail">Email</label>
+          <input type="email" id="suEmail" autocomplete="email" placeholder="you@example.com">
+          <div class="err" id="suEmailErr"></div>
+        </div>
+        <div class="field">
+          <label for="suPass">Password</label>
+          <div class="inwrap">
+            <input type="password" id="suPass" autocomplete="new-password" placeholder="At least 8 characters">
+            <button type="button" class="eye" data-for="suPass">Show</button>
+          </div>
+          <div class="meter" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+          <div class="hint" id="strength">Use 8+ characters with a letter and a number.</div>
+          <div class="err" id="suPassErr"></div>
+        </div>
+        <div class="field">
+          <label for="suPass2">Confirm password</label>
+          <input type="password" id="suPass2" autocomplete="new-password" placeholder="Type it again">
+          <div class="err" id="suPass2Err"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="terms"> I agree to the terms of use</label>
+        <div class="err" id="termsErr"></div>
+        <button class="btn" type="submit">Create account</button>
+        <div class="row"><span class="hint">Already registered?</span><button type="button" class="link" id="toLogin">Sign in instead</button></div>
+      </form>
+    </div>
+
+    <section id="dashView" class="dash" hidden>
+      <div class="who">
+        <div class="avatar" id="avatar">A</div>
+        <div><h2 id="dashName">Name</h2><p class="sub" id="dashEmail">email</p></div>
+      </div>
+      <div class="banner" id="dashBanner">You're signed in.</div>
+      <dl>
+        <dt>Member since</dt><dd id="dJoined">—</dd>
+        <dt>Last sign-in</dt><dd id="dLast">—</dd>
+        <dt>Sign-ins</dt><dd id="dCount">—</dd>
+        <dt>Account ID</dt><dd class="mono" id="dId">—</dd>
+      </dl>
+      <div class="row" style="justify-content:flex-start">
+        <button class="btn ghost" id="logout">Sign out</button>
+        <button class="btn ghost" id="logoutAll">Sign out everywhere</button>
+      </div>
+      <details class="danger">
+        <summary>Delete account</summary>
+        <form id="deleteForm" novalidate>
+          <p class="hint" style="margin:0">This permanently removes your account. Enter your password to confirm.</p>
+          <input type="password" id="delPass" autocomplete="current-password" placeholder="Your password">
+          <div class="err" id="delErr"></div>
+          <button class="btn danger-btn" type="submit">Delete my account</button>
+        </form>
+      </details>
+    </section>
+  </main>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
